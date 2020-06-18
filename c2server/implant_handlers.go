@@ -54,6 +54,9 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Couldnt create implant: ", err)
 				return
 			}
+
+			w.Header().Set("Content-Type", "text/html; charset-utf8")
+			fmt.Fprint(w, "SendHello")
 		}
 	}
 }
