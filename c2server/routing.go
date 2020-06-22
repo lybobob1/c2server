@@ -11,9 +11,10 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/hello", handler).Methods("GET")
 	r.HandleFunc("/implants", getImplantHandler).Methods("GET")
 	r.HandleFunc("/callback", callbackHandler).Methods("GET", "POST")
+	r.HandleFunc("/task/add", taskAddHandler).Methods("POST")
 
-	staticFileDirectory := http.Dir("./assets/")
-	staticFileHandler := http.StripPrefix("/assets/", http.FileServer(staticFileDirectory))
-	r.PathPrefix("/assets/").Handler(staticFileHandler).Methods("GET")
+	staticFileDirectory := http.Dir("./static/")
+	staticFileHandler := http.StripPrefix("/static/", http.FileServer(staticFileDirectory))
+	r.PathPrefix("/static/").Handler(staticFileHandler).Methods("GET")
 	return r
 }

@@ -1,10 +1,10 @@
 package main
 
 type Implant struct {
-	Dbid        int    `json:"dbid"`
-	Identifier  string `json:"id"`
-	Ipaddress   string `json:"ipaddress"`
-	Lastcheckin string `json:"lastcheckin`
+	Dbid        int
+	Identifier  string
+	Ipaddress   string
+	Lastcheckin string
 }
 
 var implants []Implant
@@ -16,3 +16,11 @@ type Task struct {
 }
 
 var tasks []Task
+
+type Command struct {
+	Id        int
+	Task_code int
+	Name      string
+}
+
+var commands []Command

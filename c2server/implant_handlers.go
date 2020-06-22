@@ -1,21 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
+var index_template = template.Must(template.ParseFiles("templates/index.html"))
+
 func getImplantHandler(w http.ResponseWriter, r *http.Request) {
 	implants, err := store.GetImplants()
+	commands, err := store.GetCommands()
+
+	log.Println(implants)
+	log.Println(commands)
+	err = index_template.Execute(w, struct {
+		ImplantList []*Implant
+		CommandList []*Command
+	}{implants, commands})
+
 	if err != nil {
 		fmt.Println(fmt.Errorf("Error: %v", err))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	implantListBytes, err := json.Marshal(implants)
+	//implantListBytes, err := json.Marshal(implants)
 
 	if err != nil {
 		fmt.Println(fmt.Errorf("Error: %v", err))
@@ -23,7 +34,7 @@ func getImplantHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(implantListBytes)
+	//w.Write(implantListBytes)
 
 }
 
